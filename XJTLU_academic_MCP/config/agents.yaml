@@ -1,0 +1,23 @@
+agents:
+  - name: LearningMallAgent
+    role: Teaching and learning resource coordination
+    platform: LearningMall
+    responsibilities:
+      - course_enrollment_overview
+      - teaching_material_indexing
+      - assignment_timeline_snapshot
+
+  - name: EBridgeAgent
+    role: Academic record and enrollment governance
+    platform: eBridge
+    responsibilities:
+      - grade_history_access
+      - prerequisite_validation
+      - enrollment_policy_exposure
+
+  - name: PlanningAgent
+    role: Academic decision and workload planning
+    responsibilities:
+      - eligibility_evaluation
+      - workload_estimation
+      - semester_risk_assessment

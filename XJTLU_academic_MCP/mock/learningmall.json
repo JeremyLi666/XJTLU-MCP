@@ -1,0 +1,36 @@
+[
+  {
+    "code": "COMP301",
+    "name": "Object-Oriented Programming",
+    "credits": 5,
+    "description": "This course covers advanced programming concepts using Java, including inheritance, polymorphism, and design patterns.",
+    "ilo": [
+      "Implement robust OOP solutions",
+      "Apply UML for system design"
+    ],
+    "assessment": {
+      "coursework": 60,
+      "exam": 40
+    },
+    "prerequisites": ["COMP101"],
+    "career_paths": ["Software Engineering", "Quantitative Development"],
+    "difficulty": "Medium"
+  },
+  {
+    "code": "ECON205",
+    "name": "Intermediate Macroeconomics",
+    "credits": 5,
+    "description": "Analysis of macroeconomic models including IS-LM, AD-AS, and fiscal-monetary policy interactions.",
+    "ilo": [
+      "Analyze macroeconomic equilibrium",
+      "Evaluate policy effectiveness"
+    ],
+    "assessment": {
+      "coursework": 30,
+      "exam": 70
+    },
+    "prerequisites": ["ECON101", "MATH101"],
+    "career_paths": ["Policy Research", "Family Wealth Management"],
+    "difficulty": "Hard"
+  }
+]

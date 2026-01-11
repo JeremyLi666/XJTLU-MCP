@@ -1,0 +1,25 @@
+{
+  "xjtlu_student_001": {
+    "user_id": "xjtlu_student_001",
+    "name": "Alex Chen",
+    "program": "BSc Computer Science",
+    "current_semester": "2025-2026-1",
+    "timetable": [
+      {
+        "course_code": "ECO101",
+        "course_name": "Introduction to statistics",
+        "day": "Monday",
+        "time_slot": "09:00-11:00",
+        "location": "CB-A101"
+      },
+      {
+        "course_code": "MTH019",
+        "course_name": "Calculus I",
+        "day": "Wednesday",
+        "time_slot": "14:00-16:00",
+        "location": "SE-M201"
+      }
+    ],
+    "completed_courses": ["MTH019", "ECO101"]
+  }
+}

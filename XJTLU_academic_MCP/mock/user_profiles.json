@@ -1,0 +1,10 @@
+{
+  "default": {
+    "user_id": "xjtlu_student_001",
+    "major": "Computer Science",
+    "gpa": 3.59,
+    "target_programs": ["HKU MFWM", "KCL Computational Finance"],
+    "interests": ["AI", "Quantitative Finance", "System Design"],
+    "available_credits": 20
+  }
+}

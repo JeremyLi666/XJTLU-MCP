@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>XJTLU Academic Navigator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            xjtlu: {
+              primary: '#0056b3',
+              secondary: '#e63946',
+              light: '#f8f9fa',
+              dark: '#212529'
+            }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease forwards',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: 0, transform: 'translateY(10px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .message-bubble {
+      transition: all 0.3s ease;
+      max-width: 85%;
+    }
+    .message-bubble:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .typing-indicator {
+      display: inline-block;
+      margin-left: 4px;
+    }
+    .typing-indicator span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #6c757d;
+      margin-right: 3px;
+      animation: typing 1.4s infinite both;
+    }
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes typing {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .subject-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      font-weight: 500;
+      margin: 2px;
+    }
+    .subject-tag.eco { background-color: #d1e7dd; color: #0f5132; }
+    .subject-tag.stat { background-color: #cff4fc; color: #055160; }
+    .subject-tag.fin { background-color: #f8d7da; color: #842029; }
+    .subject-tag.sustain { background-color: #e2e3e5; color: #383d41; }
+    .course-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid #0056b3;
+    }
+    .course-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .ai-response {
+      line-height: 1.6;
+    }
+    .ai-response p {
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <header class="text-center mb-8">
+      <div class="flex items-center justify-center gap-3 mb-2">
+        <div class="w-12 h-12 bg-xjtlu-primary rounded-full flex items-center justify-center text-white font-bold text-xl border-2 border-white shadow-lg">
+          X
+        </div>
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold text-xjtlu-primary">XJTLU Academic Navigator</h1>
+          <p class="text-lg text-gray-700 mt-1">Economics Programme Specialist</p>
+        </div>
+      </div>
+      <p class="text-gray-600 mt-2 flex items-center justify-center gap-2">
+        <i class="fas fa-brain text-xjtlu-primary"></i>
+        Powered by DeepSeek AI • Model-Context-Protocol Architecture
+      </p>
+      <div class="mt-4 flex justify-center gap-4 flex-wrap">
+        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">HKU MFWM Pathway</span>
+        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Semester Planning</span>
+        <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">Career Alignment</span>
+      </div>
+    </header>
+
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-blue-100">
+      <div id="chat-box" class="h-96 overflow-y-auto mb-4 space-y-4 pr-2">
+        <!-- Messages will be inserted here dynamically -->
+      </div>
+      
+      <div class="flex space-x-2">
+        <input 
+          type="text" 
+          id="user-input" 
+          class="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-xjtlu-primary focus:border-transparent transition duration-300"
+          placeholder="Ask about economics courses, career paths, or semester planning..."
+          aria-label="Ask academic question"
+        />
+        <button 
+          id="send-button"
+          class="bg-xjtlu-primary hover:bg-blue-700 text-white px-4 rounded-lg transition flex items-center justify-center w-12 h-11 shadow-md hover:shadow-lg"
+          aria-label="Send message"
+          disabled
+        >
+          <i class="fas fa-paper-plane transform transition-transform hover:translate-x-1"></i>
+        </button>
+      </div>
+      
+      <div class="mt-3 text-xs text-gray-500 flex flex-wrap gap-2 justify-center">
+        <span>Example queries:</span>
+        <button class="example-query text-xjtlu-primary hover:underline" data-query="Explain finance courses for HKU MFWM">
+          finance courses for HKU MFWM
+        </button>
+        <span>•</span>
+        <button class="example-query text-xjtlu-primary hover:underline" data-query="Plan my semester with econometrics courses">
+          econometrics semester plan
+        </button>
+        <span>•</span>
+        <button class="example-query text-xjtlu-primary hover:underline" data-query="Career paths after XJTLU Economics">
+          career paths
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 hover:shadow-md transition-shadow">
+        <h3 class="font-semibold text-xjtlu-primary flex items-center gap-2 text-lg">
+          <i class="fas fa-graduation-cap"></i> Course Guidance
+        </h3>
+        <p class="text-sm text-gray-700 mt-1">Get expert explanations for ECO/FIN courses from XJTLU's Economics programme curriculum</p>
+      </div>
+      <div class="bg-green-50 p-4 rounded-lg border border-green-100 hover:shadow-md transition-shadow">
+        <h3 class="font-semibold text-green-700 flex items-center gap-2 text-lg">
+          <i class="fas fa-chart-line"></i> Career Planning
+        </h3>
+        <p class="text-sm text-gray-700 mt-1">Personalized pathways to HKU MFWM, KCL Computational Finance, and other target programs</p>
+      </div>
+      <div class="bg-purple-50 p-4 rounded-lg border border-purple-100 hover:shadow-md transition-shadow">
+        <h3 class="font-semibold text-purple-700 flex items-center gap-2 text-lg">
+          <i class="fas fa-calendar-alt"></i> Semester Strategy
+        </h3>
+        <p class="text-sm text-gray-700 mt-1">Optimal course selection with workload balancing and prerequisite planning</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6 mb-8 border border-gray-100">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <i class="fas fa-book-open text-xjtlu-primary"></i>
+        Featured Economics Courses
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="course-card border border-gray-200 rounded-lg p-4 bg-gray-50">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-bold text-lg text-xjtlu-primary">ECO302: Advanced Econometrics</h3>
+              <div class="mt-1 flex flex-wrap">
+                <span class="subject-tag stat">Statistics & Econometrics</span>
+                <span class="subject-tag fin">Finance Applications</span>
+              </div>
+            </div>
+            <span class="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded">5 Credits</span>
+          </div>
+          <p class="text-gray-600 mt-2 text-sm">Master advanced statistical methods for economic analysis including time series, panel data, and machine learning applications.</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">HKU MFWM Core</span>
+            <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">Advanced Level</span>
+          </div>
+        </div>
+        <div class="course-card border border-gray-200 rounded-lg p-4 bg-gray-50">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-bold text-lg text-xjtlu-primary">ECO319: Family Wealth Management</h3>
+              <div class="mt-1 flex flex-wrap">
+                <span class="subject-tag fin">Finance</span>
+                <span class="subject-tag sustain">Sustainability</span>
+              </div>
+            </div>
+            <span class="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded">5 Credits</span>
+          </div>
+          <p class="text-gray-600 mt-2 text-sm">Specialized course on wealth management principles for high-net-worth individuals and families, covering intergenerational transfer and behavioral aspects.</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Direct HKU MFWM Prep</span>
+            <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">Advanced Level</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mt-8 text-center text-gray-600 text-sm border-t pt-4">
+      <p class="flex items-center justify-center gap-2">
+        <i class="fas fa-exclamation-circle text-amber-500"></i>
+        <span>This is a prototype for academic purposes. Uses mock data from XJTLU Economics programme specification.</span>
+      </p>
+      <p class="mt-2 text-gray-500">
+        <span class="font-medium text-xjtlu-primary">Model-Context-Protocol Architecture</span> • DeepSeek AI Integration • XJTLU Economics Curriculum
+      </p>
+      <p class="mt-2 text-xs text-gray-400">
+        Not affiliated with or endorsed by Xi'an Jiaotong-Liverpool University
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    // Global state variables
+    let isProcessing = false;
+    const API_BASE_URL = 'http://localhost:8000/api/v1'; // Change for production deployment
+    
+    // DOM Elements
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const exampleQueries = document.querySelectorAll('.example-query');
+    
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load saved chat history (optional)
+      loadChatHistory();
+      
+      // Add welcome message
+      addWelcomeMessage();
+      
+      // Enable input after initialization
+      enableInput();
+      
+      // Set up event listeners
+      setupEventListeners();
+    });
+    
+    function setupEventListeners() {
+      // Send button click
+      sendButton.addEventListener('click', sendQuery);
+      
+      // Enter key press
+      userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendQuery();
+        }
+      });
+      
+      // Input change for button enable/disable
+      userInput.addEventListener('input', () => {
+        sendButton.disabled = userInput.value.trim().length === 0;
+      });
+      
+      // Example query clicks
+      exampleQueries.forEach(button => {
+        button.addEventListener('click', () => {
+          userInput.value = button.getAttribute('data-query');
+          sendButton.disabled = false;
+          userInput.focus();
+        });
+      });
+    }
+    
+    function addWelcomeMessage() {
+      addMessage("👋 Welcome to XJTLU Academic Navigator!", 'assistant');
+      addMessage("I'm your AI advisor for Economics programme planning. I can help you with:", 'assistant');
+      addMessage("- Course explanations and selection strategies\n- Career pathway planning for programs like HKU MFWM\n- Semester workload balancing and prerequisite planning", 'assistant');
+    }
+    
+    function enableInput() {
+      userInput.disabled = false;
+      sendButton.disabled = true;
+      userInput.focus();
+    }
+    
+    function disableInput() {
+      userInput.disabled = true;
+      sendButton.disabled = true;
+    }
+    
+    function addMessage(text, role) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message flex ${role === 'user' ? 'justify-end' : 'justify-start'} mb-2 fade-in`;
+      
+      const bubbleClass = role === 'user' 
+        ? 'bg-xjtlu-primary text-white' 
+        : 'bg-gray-100 text-gray-800 border border-gray-200';
+      
+      const messageContent = role === 'assistant' 
+        ? formatAssistantResponse(text) 
+        : `<span class="block">${escapeHTML(text)}</span>`;
+      
+      messageDiv.innerHTML = `
+        <div class="message-bubble ${bubbleClass} p-3 rounded-xl shadow-sm ${
+          role === 'assistant' ? 'ai-response' : ''
+        }">
+          ${messageContent}
+        </div>
+      `;
+      
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      
+      // Save to local storage (optional)
+      saveChatHistory();
+    }
+    
+    function formatAssistantResponse(text) {
+      // Try to parse JSON response first
+      try {
+        const response = JSON.parse(text);
+        if (response.type === 'course_explanation') {
+          return formatCourseExplanation(response);
+        } else if (response.type === 'semester_plan') {
+          return formatSemesterPlan(response);
+        } else if (response.type === 'career_alignment') {
+          return formatCareerAlignment(response);
+        } else if (response.explanation) {
+          return `<p>${escapeHTML(response.explanation)}</p>`;
+        }
+      } catch (e) {
+        // Not JSON, format as plain text
+      }
+      
+      // Format plain text response
+      return text.split('\n').map(paragraph => {
+        if (!paragraph.trim()) return '';
+        return `<p>${escapeHTML(paragraph)}</p>`;
+      }).join('');
+    }
+    
+    function formatCourseExplanation(response) {
+      let html = `<div class="space-y-3">`;
+      
+      // Explanation text
+      html += `<div class="prose max-w-none"><p>${escapeHTML(response.explanation)}</p></div>`;
+      
+      // Matched courses
+      if (response.matched_courses && response.matched_courses.length > 0) {
+        html += `<div class="mt-3">
+          <h4 class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <i class="fas fa-book text-blue-500"></i>
+            Relevant Courses
+          </h4>
+          <div class="space-y-2">`;
+          
+        response.matched_courses.forEach(course => {
+          html += `
+            <div class="course-card border-l-4 border-blue-500 bg-blue-50 p-3 rounded-r-lg">
+              <div class="font-bold text-blue-800">${course.name} (${course.code})</div>
+              <div class="text-sm text-gray-600 mt-1">${escapeHTML(course.description || 'Comprehensive academic course')}</div>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${course.credits} Credits</span>
+                ${course.career_paths?.map(path => 
+                  `<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">${path}</span>`
+                ).join('') || ''}
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `</div></div>`;
+      }
+      
+      // Relevance score
+      if (response.relevance_score) {
+        const scorePercent = Math.round(response.relevance_score * 100);
+        html += `
+          <div class="mt-3 pt-3 border-t border-gray-200">
+            <div class="flex items-center gap-2">
+              <span class="font-medium">Relevance:</span>
+              <div class="flex text-amber-400">
+                ${'★'.repeat(Math.floor(response.relevance_score * 5))}
+                ${'☆'.repeat(5 - Math.floor(response.relevance_score * 5))}
+              </div>
+              <span class="text-sm text-gray-500">(${scorePercent}%)</span>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">
+              For ${response.target_program || 'your career goals'}
+            </div>
+          </div>
+        `;
+      }
+      
+      html += `</div>`;
+      return html;
+    }
+    
+    function formatSemesterPlan(response) {
+      let html = `<div class="space-y-3">`;
+      
+      // Strategic advice
+      html += `<div class="prose max-w-none"><p>${escapeHTML(response.strategic_advice)}</p></div>`;
+      
+      // Recommended courses
+      if (response.recommended_courses && response.recommended_courses.length > 0) {
+        html += `<div class="mt-3">
+          <h4 class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <i class="fas fa-calendar-alt text-purple-500"></i>
+            ${response.recommended_courses.length} Recommended Courses
+          </h4>
+          <div class="space-y-2">`;
+          
+        response.recommended_courses.forEach(course => {
+          html += `
+            <div class="course-card border-l-4 border-purple-500 bg-purple-50 p-3 rounded-r-lg">
+              <div class="font-bold text-purple-800">${course.name} (${course.code})</div>
+              <div class="text-sm text-gray-600 mt-1 flex justify-between">
+                <span>${course.credits} Credits</span>
+                <span class="text-xs bg-gray-200 px-2 py-1 rounded">Semester ${course.semester || 'N/A'}</span>
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `</div></div>`;
+      }
+      
+      // Workload assessment
+      html += `
+        <div class="mt-3 pt-3 border-t border-gray-200">
+          <div class="flex items-center gap-2">
+            <span class="font-medium">Workload Assessment:</span>
+            <span class="px-2 py-1 rounded text-sm ${
+              response.workload_assessment === 'light' ? 'bg-green-100 text-green-800' :
+              response.workload_assessment === 'moderate' ? 'bg-amber-100 text-amber-800' :
+              'bg-red-100 text-red-800'
+            }">
+              ${response.workload_assessment.charAt(0).toUpperCase() + response.workload_assessment.slice(1)} Workload
+            </span>
+            <span class="text-sm text-gray-500">(${response.total_credits} Total Credits)</span>
+          </div>
+        </div>
+      `;
+      
+      // Career alignment
+      html += `
+        <div class="mt-3">
+          <div class="flex items-center gap-2">
+            <span class="font-medium">Career Alignment:</span>
+            <div class="flex text-amber-400">
+              ${'★'.repeat(Math.floor(response.career_alignment * 5))}
+              ${'☆'.repeat(5 - Math.floor(response.career_alignment * 5))}
+            </div>
+            <span class="text-sm text-gray-500">(${Math.round(response.career_alignment * 100)}%)</span>
+          </div>
+          <div class="text-xs text-gray-500 mt-1">
+            Alignment with ${response.academic_year} ${response.semester} Semester Goals
+          </div>
+        </div>
+      `;
+      
+      html += `</div>`;
+      return html;
+    }
+    
+    function formatCareerAlignment(response) {
+      let html = `<div class="space-y-3">`;
+      
+      html += `<div class="prose max-w-none">
+        <p class="font-semibold text-gray-800">Career Pathway Analysis for ${escapeHTML(response.career_goal)}</p>
+        <p>${escapeHTML(response.recommended_pathway)}</p>
+      </div>`;
+      
+      // Key modules
+      if (response.key_modules && response.key_modules.length > 0) {
+        html += `
+          <div class="mt-3">
+            <h4 class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <i class="fas fa-key text-green-500"></i>
+              Essential Modules
+            </h4>
+            <div class="flex flex-wrap gap-2">
+              ${response.key_modules.map(module => 
+                `<span class="subject-tag fin">${module}</span>`
+              ).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      // Competency gap
+      if (response.gap) {
+        html += `
+          <div class="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
+            <div class="font-medium text-amber-800 flex items-center gap-2">
+              <i class="fas fa-lightbulb"></i>
+              Development Area
+            </div>
+            <p class="text-sm text-amber-700 mt-1">${escapeHTML(response.gap)}</p>
+          </div>
+        `;
+      }
+      
+      // Industry outlook
+      if (response.industry_outlook) {
+        html += `
+          <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <div class="font-medium text-blue-800 flex items-center gap-2">
+              <i class="fas fa-chart-line"></i>
+              Industry Outlook
+            </div>
+            <p class="text-sm text-blue-700 mt-1">${escapeHTML(response.industry_outlook)}</p>
+          </div>
+        `;
+      }
+      
+      html += `</div>`;
+      return html;
+    }
+    
+    function showTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = `message flex justify-start mb-2 fade-in`;
+      typingDiv.innerHTML = `
+        <div class="message-bubble bg-gray-100 text-gray-500 p-3 rounded-xl shadow-sm">
+          <span class="typing-indicator">
+            <span></span><span></span><span></span>
+          </span>
+        </div>
+      `;
+      chatBox.appendChild(typingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return typingDiv;
+    }
+    
+    function removeTypingIndicator(typingDiv) {
+      if (typingDiv && typingDiv.parentNode) {
+        typingDiv.parentNode.removeChild(typingDiv);
+      }
+    }
+    
+    async function sendQuery() {
+      const query = userInput.value.trim();
+      if (!query || isProcessing) return;
+      
+      // Add user message
+      addMessage(query, 'user');
+      userInput.value = '';
+      disableInput();
+      isProcessing = true;
+      
+      // Show typing indicator
+      const typingDiv = showTypingIndicator();
+      
+      try {
+        // Get user profile from mock data
+        const userProfile = {
+          user_id: "student123",
+          major: "Economics",
+          academic_year: "2025-2026",
+          current_semester: "Fall",
+          target_program: "HKU MFWM",
+          completed_courses: ["ECO107", "ECO108", "ECO102", "FIN101"],
+          available_credits: 20
+        };
+        
+        // Send API request
+        const response = await fetch(`${API_BASE_URL}/ask`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: query,
+            user_profile: userProfile
+          })
+        });
+        
+        // Remove typing indicator
+        removeTypingIndicator(typingDiv);
+        
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Add AI response
+        if (data.error) {
+          addMessage(`❌ ${data.error}`, 'assistant');
+        } else {
+          // Format the response based on type
+          let responseText;
+          if (typeof data === 'object') {
+            responseText = JSON.stringify(data, null, 2);
+          } else {
+            responseText = data;
+          }
+          addMessage(responseText, 'assistant');
+        }
+        
+      } catch (error) {
+        console.error('API Error:', error);
+        removeTypingIndicator(typingDiv);
+        addMessage(`❌ Error: ${error.message || 'Failed to get response from AI server'}`, 'assistant');
+      } finally {
+        enableInput();
+        isProcessing = false;
+      }
+    }
+    
+    function escapeHTML(str) {
+      if (typeof str !== 'string') return str;
+      return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[m]));
+    }
+    
+    // Chat history management (optional)
+    function saveChatHistory() {
+      try {
+        const messages = Array.from(chatBox.children).map(div => {
+          const isUser = div.querySelector('.bg-xjtlu-primary');
+          const text = div.querySelector('.message-bubble').textContent.trim();
+          return {
+            role: isUser ? 'user' : 'assistant',
+            content: text
+          };
+        });
+        localStorage.setItem('xjtlu_chat_history', JSON.stringify(messages));
+      } catch (e) {
+        console.warn('Failed to save chat history:', e);
+      }
+    }
+    
+    function loadChatHistory() {
+      try {
+        const history = localStorage.getItem('xjtlu_chat_history');
+        if (history) {
+          const messages = JSON.parse(history);
+          messages.forEach(msg => {
+            addMessage(msg.content, msg.role);
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to load chat history:', e);
+      }
+    }
+    
+    // Production deployment detection
+    if (window.location.hostname !== 'localhost') {
+      // Use production API URL
+      API_BASE_URL = '/api/v1';
+    }
+  </script>
+</body>
+</html>
